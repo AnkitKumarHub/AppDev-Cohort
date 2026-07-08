@@ -1,49 +1,40 @@
-import { StyleSheet, Text, View, ScrollView, Button, Switch } from 'react-native'
-import React, { useState } from 'react'
+import { StyleSheet, Text, View, FlatList } from 'react-native'
+import React from 'react'
+
+const USERS = [
+    { id: "1", name: 'John Doe', email: 'john@example.com' },
+    { id: "2", name: 'Jane Doe', email: 'jane@example.com' },
+    { id: "3", name: 'Jim Doe', email: 'jim@example.com' },
+    { id: "4", name: 'Jill Doe', email: 'jill@example.com' },
+    { id: "5", name: 'Jack Doe', email: 'jack@example.com' },
+    { id: "6", name: 'Jill Doe', email: 'jill@example.com' },
+]
 
 const HomeScreen = () => {
-  const items = Array.from({ length: 10 }, (_, i) => `Item ${i + 1}`); // this is a array of 20 items from 1 to 20.
-  const [isDarkMode, setIsDarkMode] = useState(false);
-  return (
-    // replacing view by scrollview & default scrollview is vertical but we can make it horizontal by passing the prop horizontal={true} and also we can pass the prop showsVerticalScrollIndicator={false} to hide the scroll indicator.
-    //flex1 is used to make the scrollview take up the full height of the screen which means the scrollview will be as long as the content is.
-    <ScrollView style={{ flex: 1, backgroundColor: '' }} contentContainerStyle={{ padding: 20, alignItems: 'center' }}>
-      {
-        items.map((item) => (
-          <View
-            key={item}
-            style={{
-              backgroundColor: 'white',
-              padding: 10,
-              margin: 10,
-              borderRadius: 5,
-              shadowOpacity: 0.5,
-              shadowColor: '#000',
-              shadowRadius: 4,
-              elevation: 2
-            }}
-          >
-            <Text style={{ fontSize: 16 }}>{item}</Text>
-          </View>
-        ))
-      }
-      <Button title="Click me" color={'green'} onPress={() => alert('Button pressed')} />
-      {/* but pressable is more prefered anyday because its gives you much customization and control over the button you dont have more control with button  */}
+    return (
+        <FlatList
+        style={{backgroundColor: 'slategray'}}  // this will cover the whole screen
+            data={USERS}
+            // numColumns={2} // this will render the list in a grid of 2 columns
+            // horizontal={true} // this will render the list in a horizontal direction
+            // showsHorizontalScrollIndicator={false} // this will hide the scroll indicator
+            keyExtractor={(item) => item.id}
+            contentContainerStyle={{padding: 20, backgroundColor: 'lightblue'}} //this will cover only the rendered items
+            renderItem={({ item }) => <Text>{item.name} - {item.email}</Text>}
+            ItemSeparatorComponent={() => (
+                <View style={{height: 1, backgroundColor: 'grey'}} />
+            )}
+        />
 
-      {/* Switch component --> it is a component that is used to toggle a boolean value. */}
-      <Switch
-      value={isDarkMode}
-      onValueChange={setIsDarkMode}
-      trackColor={{true: '#6c63ff', false: '#ddd'}}
-      thumbColor={isDarkMode ? '#fff' : '#000'}
-      />
-    </ScrollView>
-  )
+    )
 }
 
 export default HomeScreen
 
 const styles = StyleSheet.create({})
 
+// FlatList --> performance optimized list component that is used to render a list of items --> its render only that items which is in the view port(jo ki screen pe dikha de rahe) and not the whole list --> infinite scroll/ lazy load
 
-// scrollview component --> it is a component that is used to display a list of items in a scrollable view adding scroll functionality to the view.
+// sectionList --> used to render a list of items in a section --> it is a more efficient way to render a list of items in a section.
+
+//whereas scrollView will render the whole list for eg 2000 items which are not completely visible on the screen. 
