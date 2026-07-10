@@ -32,6 +32,6 @@ import StaticStackNavigator from './src/navigator/stack/StaticStackNavigator';
 
 
 export default function App(){
-  // return <StaticStackNavigator/>
-  return <DynamicStackNavigator/>
+  return <StaticStackNavigator/>
+  // return <DynamicStackNavigator/>
 }
