@@ -5,6 +5,8 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import HomeScreen from './src/screens/HomeScreen';
 import DetailScreen from './src/screens/DetailScreen';
 import ProfileScreen from './src/screens/ProfileScreen';
+import DynamicStackNavigator from './src/navigator/stack/DynamicStackNavigator';
+import StaticStackNavigator from './src/navigator/stack/StaticStackNavigator';
 
 // function HomeScreen() {
 //   return (
@@ -27,18 +29,9 @@ import ProfileScreen from './src/screens/ProfileScreen';
 // }
 
 
-const Stack = createNativeStackNavigator({
-  initialRouteName: "Home", // initial screen to show when the app starts --> Splash screen 
-  screens: {
-    Home: HomeScreen,
-    Details: DetailScreen,
-    Profile: ProfileScreen
-  }
-});
 
-
-const Naviagtion = createStaticNavigation(Stack);
 
 export default function App(){
-  return <Naviagtion/>
+  // return <StaticStackNavigator/>
+  return <DynamicStackNavigator/>
 }
