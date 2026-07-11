@@ -96,6 +96,8 @@ export default function App() {
 import { NavigationContainer } from '@react-navigation/native';
 import { createMaterialTopTabNavigator } from '@react-navigation/material-top-tabs';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import StaticDrawer from './src/navigator/drawer/StaticDrawer';
+import DynamicDrawer from './src/navigator/drawer/DynamicDrawer';
 
 const Tab = createMaterialTopTabNavigator();
 
@@ -141,16 +143,25 @@ function ProfileScreen() {
   );
 }
 
+//* Top Tabs Navigator
+// export default function App() {
+//   return (
+//     <SafeAreaView style={{flex: 1}}>
+//     <NavigationContainer>
+//       <Tab.Navigator>
+//         <Tab.Screen name="Home" component={HomeScreen} />
+//         <Tab.Screen name="Reels" component={ReelsScreen} />
+//         <Tab.Screen name="Profile" component={ProfileScreen} />
+//       </Tab.Navigator>
+//     </NavigationContainer>
+//     </SafeAreaView>
+//   );
+// }
+
+//* Drawer Navigator
 export default function App() {
   return (
-    <SafeAreaView style={{flex: 1}}>
-    <NavigationContainer>
-      <Tab.Navigator>
-        <Tab.Screen name="Home" component={HomeScreen} />
-        <Tab.Screen name="Reels" component={ReelsScreen} />
-        <Tab.Screen name="Profile" component={ProfileScreen} />
-      </Tab.Navigator>
-    </NavigationContainer>
-    </SafeAreaView>
+    // <StaticDrawer/>
+    <DynamicDrawer/>
   );
 }
