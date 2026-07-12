@@ -24,8 +24,10 @@ export default function RootLayout() {
 
       {/* if user is logged in then they can access the home page and about page */}
       <Stack.Protected guard={isLoggedIn}>
-        <Stack.Screen name="index" />
-        <Stack.Screen name="about" />
+        {/* <Stack.Screen name="index" />
+        <Stack.Screen name="about" /> */}
+
+        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
       </Stack.Protected>
     </Stack>
   );
