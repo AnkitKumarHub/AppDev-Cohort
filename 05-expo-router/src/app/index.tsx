@@ -6,6 +6,7 @@ export default function Index() {
     <View style={styles.container}>
       <Text>Hello World</Text>
       <Link href={'/about'}>Go to About Page</Link>
+      <Link href={'auth/login'}>Go to Login Page</Link>
       {/* <Link href={"/userId/123"}>UserId Page</Link> */}
       {/* here we are passing for username route but how expo router will identify it and pass it to the UserNameScreen ? */}
       {/* still moving to the userId page only so there is conflict --> fix: move to nested routes & if you still want so keep only 1 dynamic route at root level */}
