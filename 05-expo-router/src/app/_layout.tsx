@@ -1,19 +1,34 @@
 // import { Stack } from "expo-router";
-import { Slot, Stack } from "expo-router";
-import { Text, View } from "react-native";
+import { Stack } from "expo-router";
 
 export default function RootLayout() {
-  return <Stack screenOptions={{
-    headerStyle: {
-      backgroundColor: '#000'
-    },
-    headerTintColor: 'white',
-    headerTitleStyle: { fontWeight: 'bold' }
-  }}>
-    {/* <Stack.Screen name="index" options={{ title: 'Home' }} />  here you can set the design per screen in options */}
-    <Stack.Screen name="index" options={{ title: 'Home' }} /> 
-    <Stack.Screen name="about" options={{ title: 'About' }} />
-  </Stack>
+  const isLoggedIn = true;
+
+  return (
+    <Stack
+      screenOptions={{
+        headerStyle: {
+          backgroundColor: "#000",
+        },
+        headerTintColor: "white",
+        headerTitleStyle: { fontWeight: "bold" },
+      }}
+    >
+      {/* <Stack.Screen name="index" options={{ title: 'Home' }} />  here you can set the design per screen in options */}
+
+      {/* Header hidden for complete auth routes so that user don't see the header for entire auth routes */}
+      {/* guard is a true/false check — if it's true, the user can see those screens; if false, Expo Router blocks access and redirects them. */}
+      <Stack.Protected guard={!isLoggedIn}>
+        <Stack.Screen name="(auth)" options={{ headerShown: false }} />
+      </Stack.Protected>
+
+      {/* if user is logged in then they can access the home page and about page */}
+      <Stack.Protected guard={isLoggedIn}>
+        <Stack.Screen name="index" />
+        <Stack.Screen name="about" />
+      </Stack.Protected>
+    </Stack>
+  );
   // return (
   //   <View style={{flex: 1}}>
   //   <Text>Header</Text>
