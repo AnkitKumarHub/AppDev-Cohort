@@ -141,3 +141,11 @@ dist
 vite.config.js.timestamp-*
 vite.config.ts.timestamp-*
 .vite/
+
+# PDF files
+*.pdf
+
+# markdown files
+# *.md
+# Personal notes (keep local only)
+**/notes.md
