@@ -11,6 +11,9 @@ export default function Index() {
       <Link href={"/userName/John"}>UserName Page</Link> 
       <Link href={"/docs/expo-router"}>Go to expo-router docs Page</Link> 
       <Link href={"/docs/expo-router/installation"}>Go to expo-router/installation Page</Link> 
+      <Link href={'/Doc-02/ankit'}>Go to Ankit Page</Link>
+      <Link href={'/Doc-02/ankit/kumar'}>Go to Ankit Kumar Page</Link>
+      <Link href={'/Doc-02/ankit/kumar/bookmarks'}>Go to Ankit Kumar Bookmarks Page</Link>
     </View>
   );
 }
