@@ -1,3 +1,4 @@
+/**  
 import { createUser, getUsers, type User } from "@/lib/api";
 import { router } from "expo-router";
 import { useCallback, useEffect, useState } from "react";
@@ -323,3 +324,32 @@ const styles = StyleSheet.create({
     textAlign: "center",
   },
 });
+
+*/
+
+import { StyleSheet, Text, View } from 'react-native'
+import React, { useEffect } from 'react'
+
+const IndexScreen = () => {
+
+  //Error: Network request failed 
+  useEffect(()=>{
+    async function pingbackend(){
+      // const res = await fetch('http://localhost:3000/')
+      const res = await fetch('http://192.168.1.2:3000/')  // your local ip address
+      const data = await res.json();
+      console.log(data);
+    }
+
+    pingbackend();
+  }, [])
+  return (
+    <View>
+      <Text>IndexScreen</Text>
+    </View>
+  )
+}
+
+export default IndexScreen
+
+const styles = StyleSheet.create({})
