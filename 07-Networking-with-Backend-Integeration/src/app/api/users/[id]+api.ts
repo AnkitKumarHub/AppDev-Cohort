@@ -8,11 +8,11 @@ type Ctx = {
 
 
 // get a user
-export async function GET(_req:Request, {params}:Ctx){
+export async function GET(_req:Request, {id}:{id:string}){
 try {
     const result = await db.execute({
         sql: 'SELECT * FROM users_data WHERE id = ?',
-        args: [params.id]
+        args: [Number(id)]
     })
     if(result.rows.length === 0){
         return Response.json({
@@ -25,6 +25,7 @@ try {
         status: 200
     })
 } catch (error) {
+    console.error('Error in getting user', error)
     return Response.json({
         error: 'Failed to get user',
         status: 500

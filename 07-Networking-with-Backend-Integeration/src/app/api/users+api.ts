@@ -33,12 +33,13 @@ export async function POST(request: Request) {
             sql: 'INSERT INTO users_data (name, email) VALUES (?, ?)',
             args: [name, email]
         })
-
+        console.log('Result of user creation', result) //lastInsertRowid is a bigint
         return Response.json(
-            { id: result.lastInsertRowid, name, email },
+            { id: Number(result.lastInsertRowid), name, email },
             { status: 201 }
         )
     } catch (error) {
+        console.error('Error in user creation', error)
         return Response.json({
             error: 'Failed to create user',
             status: 500
