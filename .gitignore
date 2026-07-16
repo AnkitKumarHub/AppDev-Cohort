@@ -149,3 +149,5 @@ vite.config.ts.timestamp-*
 # *.md
 # Personal notes (keep local only)
 **/notes.md
+
+08-data-storage-with-offline-support/
