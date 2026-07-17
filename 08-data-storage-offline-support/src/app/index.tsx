@@ -1,59 +1,83 @@
-import React, { useState } from "react";
 import { Button, ScrollView, StyleSheet, Text, View } from "react-native";
-import * as SecureStore from "expo-secure-store";
+import React, { useEffect, useState } from "react";
+import * as SQLite from "expo-sqlite";
 import { SafeAreaView } from "react-native-safe-area-context";
 
+const db = SQLite.openDatabaseSync("demo.db");
+
 const index = () => {
-  const [output, setOutput] = useState<String>("");
+  const [output, setOutput] = useState("");
 
-  // 1. Save Token
-  const saveToken = async()=>{
-    await SecureStore.setItemAsync('token', '123456')
-    setOutput('Token saved')
+  // 1. Create Table
+  const createTable = async () => {
+    db.execSync(`
+            CREATE TABLE IF NOT EXISTS users (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            name TEXT,
+            age INTEGER
+            )`);
+    setOutput("Table created successfully");
+  };
+
+  // 2. Insert Data
+  const insertUser = async ()=>{
+    db.runSync(
+        "INSERT INTO users (name, age) VALUES (? , ?)",
+        "Ankit",
+        20
+    )
+    setOutput("User inserted successfully");
   }
 
-  // 2. Get Token
-  const getToken= async()=>{
-    const value = await SecureStore.getItemAsync('token')
-    setOutput(value!)
+  const getUsers = async ()=>{
+    const users = db.getAllSync(
+        "SELECT * FROM users"
+    )
+    setOutput(JSON.stringify(users, null, 2));
   }
 
-  // 3. Delete Token
-  const deleteToken = async()=>{
-    await SecureStore.deleteItemAsync('token')
-    setOutput('Token deleted')
+  const getFirstUser = async()=>{
+    const firstUser = db.getFirstSync(
+        "SELECT * FROM users LIMIT 1"
+    )
+    setOutput(JSON.stringify(firstUser, null, 2));
   }
 
-  // 4. Check Availability  --> good practice before setting any item to check if the secure store is available or not 
-  const checkAvailability = async()=>{
-    const isAvailable = await SecureStore.isAvailableAsync();  // returns boolean this simply checks if the secure store api is available on the device
-    setOutput(isAvailable ? 'Secure store is available' : 'Secure store is not available')
+  const updateUser = async()=>{
+    db.runSync(
+        "UPDATE users SET age = ? WHERE id = ? ",
+        25,
+        1
+    );
+    setOutput("User updated successfully");
   }
 
-  // 5. Save Object
-  const saveObject =async()=>{
-    const user = {
-        name: 'code snippet',
-        email: 'code@snippet.com',
-        age: 30
-    }
-    await SecureStore.setItemAsync('user', JSON.stringify(user))
-    setOutput('User saved')
+  const deleteUser = async()=>{
+    db.runSync(
+        "DELETE FROM users WHERE id = ?",
+        1
+    );
+    setOutput("User deleted successfully");
   }
 
-  // 6. Get Object
-  const getObject = async()=>{
-    const value = await SecureStore.getItemAsync('user')
+//   const closeDatabase = async()=>{
+//     db.closeSync();
+//     setOutput("Database closed successfully");
+//   }
 
-    if(!value) return setOutput('No user found')
-
-    const user = JSON.parse(value)
-    setOutput(`User: ${user.name}, ${user.email}, ${user.age}`)
+  const dropTable = async()=>{
+    db.execSync(
+        "DROP TABLE IF EXISTS users"
+    );
+    setOutput("Table dropped successfully");
   }
 
+  useEffect(()=>{
+    createTable
+  }, [])
 
 
-   return (
+  return (
     <SafeAreaView
     style={{
       flex: 1,
@@ -72,43 +96,49 @@ const index = () => {
           marginBottom: 10,
         }}
       >
-        SecureStore Demo
+        SQLite Demo
       </Text>
 
       <Button
-        title="Save Token"
-        onPress={saveToken}
+        title="Create Table"
+        onPress={createTable}
       />
 
       <Button
-        title="Get Token"
-        onPress={getToken}
+        title="Insert User"
+        onPress={insertUser}
       />
 
       <Button
-        title="Delete Token"
-        onPress={deleteToken}
+        title="Get All Users"
+        onPress={getUsers}
       />
 
       <Button
-        title="Check Availability"
-        onPress={checkAvailability}
+        title="Get First User"
+        onPress={getFirstUser}
       />
 
       <Button
-        title="Save Object"
-        onPress={saveObject}
+        title="Update User"
+        onPress={updateUser}
       />
 
       <Button
-        title="Get Object"
-        onPress={getObject}
+        title="Delete User"
+        onPress={deleteUser}
+      />
+
+ 
+      <Button
+        title="Drop Table"
+        onPress={dropTable}
       />
 
       <View
         style={{
-          marginTop: 30,
-          padding: 20,
+          marginTop: 20,
+          padding: 16,
           borderWidth: 1,
           borderRadius: 10,
         }}
@@ -124,8 +154,9 @@ const index = () => {
         </Text>
 
         <Text
+          selectable
           style={{
-            fontSize: 16,
+            fontSize: 14,
           }}
         >
           {output}
@@ -139,3 +170,15 @@ const index = () => {
 export default index;
 
 const styles = StyleSheet.create({});
+
+//TODO: yh to chalo mene locally save krwa liya but ab isko agr DB ke sath sync karna hai to kese karna hai?
+//? You read about TURSO DB and this SQlite database both are different but you can use this SQlite database to store data locally and then sync it with the TURSO DB.
+//there is something push pull mechanism which will help to save locally and then simultaneously sync it with the TURSO DB.
+
+//case 1: User is offline and you want to save the data locally
+
+//case 2: User is online and you want to sync the data with the TURSO DB
+
+//case 3: User is offline and first save the data locally and then later when user is online sync the data with the TURSO DB
+
+// or add a button push-pull => push on demand and pull on demand
