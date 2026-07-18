@@ -21,7 +21,7 @@ export const useAccelerometer = () => {
 
             if(!isAvailable) return;
 
-            Accelerometer.setUpdateInterval(100);
+            Accelerometer.setUpdateInterval(32);
 
             subscription= Accelerometer.addListener((data)=>{
                 setX(data.x);
