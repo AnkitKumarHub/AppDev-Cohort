@@ -1,32 +1,33 @@
 import { useState, useEffect } from "react";
-import { Gyroscope } from "expo-sensors"
+import { Gyroscope } from "expo-sensors";
 
-export function useGyroscope() {
-    const [available, setAvailable] = useState<boolean | null>(null);
-    const [x, setX] = useState(0);
-    const [y, setY] = useState(0);
-    const [z, setZ] = useState(0);
+export function useGyroscope(updateIntervalMs = 32) {
+  const [available, setAvailable] = useState<boolean | null>(null);
+  const [x, setX] = useState(0);
+  const [y, setY] = useState(0);
+  const [z, setZ] = useState(0);
 
-    useEffect(() => {
-        let subscription: { remove: () => void } | undefined;
-        (async () => {
-            const isAvailable = await Gyroscope.isAvailableAsync();
-            setAvailable(isAvailable);
-            if (!isAvailable) return;
+  useEffect(() => {
+    let subscription: { remove: () => void } | undefined;
 
-            Gyroscope.setUpdateInterval(100); //100ms is the update interval for the gyroscope FPS(Frames per second)
+    (async () => {
+      const isAvailable = await Gyroscope.isAvailableAsync();
+      setAvailable(isAvailable);
+      if (!isAvailable) return;
 
-            subscription = Gyroscope.addListener((data) => {
-                setX(data.x);
-                setY(data.y);
-                setZ(data.z);
-            });
-        })();
+      Gyroscope.setUpdateInterval(updateIntervalMs);
 
-        return ()=>{
-            subscription?.remove();
-        }
-    }, []);
+      subscription = Gyroscope.addListener((data) => {
+        setX(data.x);
+        setY(data.y);
+        setZ(data.z);
+      });
+    })();
 
-    return {available, x, y, z}
+    return () => {
+      subscription?.remove();
+    };
+  }, [updateIntervalMs]);
+
+  return { available, x, y, z };
 }
