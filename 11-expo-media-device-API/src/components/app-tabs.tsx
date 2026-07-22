@@ -56,6 +56,13 @@ export default function AppTabs() {
          md={"gallery_thumbnail"}
         />
       </NativeTabs.Trigger>
+      <NativeTabs.Trigger name="audio">
+        <NativeTabs.Trigger.Label> Audio</NativeTabs.Trigger.Label>
+        <NativeTabs.Trigger.Icon
+         md={"mic"}
+        //  musical note
+        />
+      </NativeTabs.Trigger>
     </NativeTabs>
   );
 }
