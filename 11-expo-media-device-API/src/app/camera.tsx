@@ -6,6 +6,7 @@ import {
   CameraView,
   useCameraPermissions,
   useMicrophonePermissions,
+  type BarcodeScanningResult,
 } from "expo-camera";
 import { Image } from "expo-image";
 
@@ -18,6 +19,9 @@ const Camera = () => {
   const [micPermission, requestMicPermission] = useMicrophonePermissions();
   const [videoUri, setVideoUri] = useState<string | null>(null); // for storing the video uri
   const [recording, setRecording] = useState(false); // for tracking the recording state
+
+  const [result, setResult] = useState<BarcodeScanningResult | null>(null);
+  const lastscanned = useRef<string | null>(null); // for storing the last scanned barcode
 
   if (!permission) return <ThemedText>No access to camera</ThemedText>;
   if (!permission.granted) {
@@ -55,13 +59,21 @@ const Camera = () => {
     cameraRef.current?.stopRecording();
   };
 
+  const onBarCodeScanned = (scan: BarcodeScanningResult) => {
+    if (lastscanned.current === scan.data) return;
+    lastscanned.current = scan.data;
+    setResult(scan);
+  };
+
   return (
     <ThemedView style={{ flex: 1 }}>
       <CameraView
         ref={cameraRef}
         style={{ flex: 1 }}
         facing="back"
-        mode="video"
+        // mode="video"
+        barcodeScannerSettings={{ barcodeTypes: ["qr"] }}
+        onBarcodeScanned={onBarCodeScanned}
         onCameraReady={() => setReady(true)}
         onMountError={({ message }) => console.warn(message)}
       />
@@ -74,13 +86,16 @@ const Camera = () => {
         />
       )} */}
 
-      <Button
+      {/* <Button
         title={recording ? "Stop Recording" : "Start Recording"}
         disabled={!ready}
         onPress={recording ? stopRecording : startRecording}
-      />
+      /> */}
 
-      {videoUri && <ThemedText selectable>{videoUri}</ThemedText>}
+      {/* {videoUri && <ThemedText selectable>{videoUri}</ThemedText>} */}
+
+      {/* Display the result of the barcode scanning */}
+      {result && <ThemedText selectable>{result.data}</ThemedText>}
 
       <ThemedText style={{ padding: 12 }}>
         {ready ? "camera ready" : "starting camera..."}
