@@ -42,6 +42,13 @@ export default function AppTabs() {
          md={"flashlight_off"}
         />
       </NativeTabs.Trigger>
+
+      <NativeTabs.Trigger name="cameraFlip-zoom">
+        <NativeTabs.Trigger.Label>Camera Flip</NativeTabs.Trigger.Label>
+        <NativeTabs.Trigger.Icon
+         md={"camera_front"}
+        />
+      </NativeTabs.Trigger>
     </NativeTabs>
   );
 }
