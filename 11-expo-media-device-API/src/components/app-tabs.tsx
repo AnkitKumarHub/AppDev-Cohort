@@ -35,6 +35,13 @@ export default function AppTabs() {
          md={"camera_enhance"}
         />
       </NativeTabs.Trigger>
+      
+      <NativeTabs.Trigger name="flash-torch">
+        <NativeTabs.Trigger.Label>Flash Torch</NativeTabs.Trigger.Label>
+        <NativeTabs.Trigger.Icon
+         md={"flashlight_off"}
+        />
+      </NativeTabs.Trigger>
     </NativeTabs>
   );
 }
