@@ -50,16 +50,25 @@ export default function AppTabs() {
         />
       </NativeTabs.Trigger> */}
 
-      <NativeTabs.Trigger name="photo-gallery">
+      {/* <NativeTabs.Trigger name="photo-gallery">
         <NativeTabs.Trigger.Label> Gallery</NativeTabs.Trigger.Label>
         <NativeTabs.Trigger.Icon
          md={"gallery_thumbnail"}
         />
-      </NativeTabs.Trigger>
+      </NativeTabs.Trigger> */}
+
       <NativeTabs.Trigger name="audio">
-        <NativeTabs.Trigger.Label> Audio</NativeTabs.Trigger.Label>
+        <NativeTabs.Trigger.Label>Audio</NativeTabs.Trigger.Label>
         <NativeTabs.Trigger.Icon
          md={"mic"}
+        //  musical note
+        />
+      </NativeTabs.Trigger>
+
+      <NativeTabs.Trigger name="audio-display">
+        <NativeTabs.Trigger.Label>Audio Display</NativeTabs.Trigger.Label>
+        <NativeTabs.Trigger.Icon
+         md={"music_note"}
         //  musical note
         />
       </NativeTabs.Trigger>
