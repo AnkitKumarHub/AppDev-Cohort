@@ -1,0 +1,11 @@
+name: Hello World
+
+on:
+  push:
+    branches: ["main"]
+
+jobs:
+  hello-world:
+    steps:
+      - run: echo "Hello, World!"
+      - run: echo "The time is $(date)"

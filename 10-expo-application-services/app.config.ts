@@ -1,3 +1,4 @@
+/** 
 import type { ExpoConfig } from "expo/config";
 
 const IS_DEV = process.env.APP_VARIANT === "development";
@@ -70,3 +71,5 @@ export default {
     },
   } satisfies ExpoConfig,
 };
+
+*/
