@@ -36,17 +36,24 @@ export default function AppTabs() {
         />
       </NativeTabs.Trigger>
       
-      <NativeTabs.Trigger name="flash-torch">
+      {/* <NativeTabs.Trigger name="flash-torch">
         <NativeTabs.Trigger.Label>Flash Torch</NativeTabs.Trigger.Label>
         <NativeTabs.Trigger.Icon
          md={"flashlight_off"}
         />
-      </NativeTabs.Trigger>
+      </NativeTabs.Trigger> */}
 
-      <NativeTabs.Trigger name="cameraFlip-zoom">
+      {/* <NativeTabs.Trigger name="cameraFlip-zoom">
         <NativeTabs.Trigger.Label>Camera Flip</NativeTabs.Trigger.Label>
         <NativeTabs.Trigger.Icon
          md={"camera_front"}
+        />
+      </NativeTabs.Trigger> */}
+
+      <NativeTabs.Trigger name="photo-gallery">
+        <NativeTabs.Trigger.Label> Gallery</NativeTabs.Trigger.Label>
+        <NativeTabs.Trigger.Icon
+         md={"gallery_thumbnail"}
         />
       </NativeTabs.Trigger>
     </NativeTabs>
