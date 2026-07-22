@@ -72,12 +72,22 @@ export default function AppTabs() {
         />
       </NativeTabs.Trigger> */}
 
-      <NativeTabs.Trigger name="audio-recording">
+      {/* <NativeTabs.Trigger name="audio-recording">
         <NativeTabs.Trigger.Label>Audio Recording</NativeTabs.Trigger.Label>
         <NativeTabs.Trigger.Icon
          md={"mic_double"}
+        />
+      </NativeTabs.Trigger> */}
+
+      <NativeTabs.Trigger name="audio-play-back">
+        <NativeTabs.Trigger.Label>Audio Play Back</NativeTabs.Trigger.Label>
+        <NativeTabs.Trigger.Icon
+         md={"play_circle_filled"}
         />
       </NativeTabs.Trigger>
     </NativeTabs>
   );
 }
+
+
+//TODO: you need to save the recording locally  --> a function is required saveRecordingToGallery() --> it will save the recording to the media library 
