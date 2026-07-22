@@ -65,11 +65,17 @@ export default function AppTabs() {
         />
       </NativeTabs.Trigger>
 
-      <NativeTabs.Trigger name="audio-display">
+      {/* <NativeTabs.Trigger name="audio-display">
         <NativeTabs.Trigger.Label>Audio Display</NativeTabs.Trigger.Label>
         <NativeTabs.Trigger.Icon
          md={"music_note"}
-        //  musical note
+        />
+      </NativeTabs.Trigger> */}
+
+      <NativeTabs.Trigger name="audio-recording">
+        <NativeTabs.Trigger.Label>Audio Recording</NativeTabs.Trigger.Label>
+        <NativeTabs.Trigger.Icon
+         md={"mic_double"}
         />
       </NativeTabs.Trigger>
     </NativeTabs>
