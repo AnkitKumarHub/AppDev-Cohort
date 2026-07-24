@@ -5,31 +5,67 @@ import * as MediaLibrary from "expo-media-library";
 import { useEffect, useState } from "react";
 import { ActivityIndicator, Button, FlatList } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import * as Linking from 'expo-linking'
+import * as Linking from "expo-linking";
 
 export default function GalleryGridScreen() {
   const [permission, requestPermission] = MediaLibrary.usePermissions();
   const [assets, setAssets] = useState<MediaLibrary.Asset[]>([]);
   const [loading, setLoading] = useState(false);
+  const [endCursor, setEndCursor] = useState<string | undefined>();
+  const [hasNextPage, setHasNextPage] = useState(true);
+  const [loadingMore, setLoadingMore] = useState(false);
+
+  const PAGE_SIZE = 20;
+
+  const fetchPage = async (after?: string) => {
+    const page = await MediaLibrary.getAssetsAsync({
+      first: PAGE_SIZE,
+      after, // undefined on first page
+      mediaType: MediaLibrary.MediaType.photo,
+      sortBy: [[MediaLibrary.SortBy.creationTime, false]],
+    });
+    setAssets((prev) => (after ? [...prev, ...page.assets] : page.assets));
+    setEndCursor(page.endCursor);
+    setHasNextPage(page.hasNextPage);
+  };
+
+  //   const loadGallery = async () => {
+  //     if (!permission?.granted) {
+  //       const result = await requestPermission();
+  //       if (!result.granted) return;
+  //     }
 
   const loadGallery = async () => {
-    if (!permission?.granted) {
-      const result = await requestPermission();
-      if (!result.granted) return;
-    }
-
     setLoading(true);
     try {
-      const page = await MediaLibrary.getAssetsAsync({
-        first: 20,
-        mediaType: MediaLibrary.MediaType.photo,
-        sortBy: [[MediaLibrary.SortBy.creationTime, false]], // newest first
-      });
-      setAssets(page.assets);
+      await fetchPage(); // first page
     } finally {
       setLoading(false);
     }
   };
+
+  const loadMore = async () => {
+    if (!hasNextPage || loadingMore || loading) return;
+    setLoadingMore(true);
+    try {
+      await fetchPage(endCursor);
+    } finally {
+      setLoadingMore(false);
+    }
+  };
+
+  //     setLoading(true);
+  //     try {
+  //       const page = await MediaLibrary.getAssetsAsync({
+  //         first: 20,
+  //         mediaType: MediaLibrary.MediaType.photo,
+  //         sortBy: [[MediaLibrary.SortBy.creationTime, false]], // newest first
+  //       });
+  //       setAssets(page.assets);
+  //     } finally {
+  //       setLoading(false);
+  //     }
+  //   };
 
   useEffect(() => {
     if (permission?.granted) {
@@ -52,7 +88,7 @@ export default function GalleryGridScreen() {
     );
   }
 
-//   open settings to grant permission
+  //   open settings to grant permission
   const openSettings = () => {
     Linking.openSettings();
   };
@@ -73,6 +109,9 @@ export default function GalleryGridScreen() {
             numColumns={3}
             columnWrapperStyle={{ gap: 4 }}
             contentContainerStyle={{ gap: 4 }}
+            onEndReached={loadMore}
+            onEndReachedThreshold={0.5}
+            ListFooterComponent={loadingMore ? <ActivityIndicator /> : null}
             renderItem={({ item }) => (
               <Image
                 source={{ uri: item.uri }}
@@ -86,7 +125,6 @@ export default function GalleryGridScreen() {
     </SafeAreaView>
   );
 }
-
 
 /**
  * TODO: See for multiselect of images in the gallery
