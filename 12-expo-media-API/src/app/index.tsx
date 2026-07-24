@@ -1,71 +1,97 @@
-import * as Network from 'expo-network';
+import * as Battery from 'expo-battery';
 import { useEffect, useState } from 'react';
 import { Button, Platform, ScrollView, Text, View } from 'react-native';
 
-export default function NetworkScreen() {
-  const liveState = Network.useNetworkState();
-  const [snapshot, setSnapshot] = useState<Network.NetworkState | null>(null);
-  const [ipAddress, setIpAddress] = useState<string | null>(null);
-  const [airplaneMode, setAirplaneMode] = useState<boolean | null>(null);
+function stateLabel(state: Battery.BatteryState) {
+  switch (state) {
+    case Battery.BatteryState.CHARGING:
+      return 'Charging';
+    case Battery.BatteryState.FULL:
+      return 'Full';
+    case Battery.BatteryState.UNPLUGGED:
+      return 'Unplugged';
+    default:
+      return 'Unknown';
+  }
+}
+
+export default function BatteryScreen() {
+  const level = Battery.useBatteryLevel();
+  const state = Battery.useBatteryState();
+  const lowPowerMode = Battery.useLowPowerMode();
+  const powerState = Battery.usePowerState();
+
+  const [available, setAvailable] = useState<boolean | null>(null);
+  const [optimization, setOptimization] = useState<boolean | null>(null);
   const [events, setEvents] = useState<string[]>([]);
+  const [status, setStatus] = useState<string | null>(null);
 
   useEffect(() => {
-    const subscription = Network.addNetworkStateListener((state) => {
-      const line = `${state.type ?? 'UNKNOWN'} · connected=${String(state.isConnected)} · internet=${String(state.isInternetReachable)}`;
-      setEvents((current) => [line, ...current].slice(0, 5));
+    Battery.isAvailableAsync().then(setAvailable);
+
+    const levelSub = Battery.addBatteryLevelListener(({ batteryLevel }) => {
+      setEvents((current) =>
+        [`Level: ${Math.round(batteryLevel * 100)}%`, ...current].slice(0, 4),
+      );
     });
 
-    return () => subscription.remove();
+    const stateSub = Battery.addBatteryStateListener(({ batteryState }) => {
+      setEvents((current) =>
+        [`State: ${stateLabel(batteryState)}`, ...current].slice(0, 4),
+      );
+    });
+
+    const powerSub = Battery.addLowPowerModeListener(({ lowPowerMode: enabled }) => {
+      setEvents((current) =>
+        [`Low power: ${enabled ? 'On' : 'Off'}`, ...current].slice(0, 4),
+      );
+    });
+
+    return () => {
+      levelSub.remove();
+      stateSub.remove();
+      powerSub.remove();
+    };
   }, []);
 
-  const refreshSnapshot = async () => {
-    const state = await Network.getNetworkStateAsync();
-    setSnapshot(state);
+  const refreshPowerState = async () => {
+    const result = await Battery.getPowerStateAsync();
+    setStatus(
+      `Power state: ${Math.round(result.batteryLevel * 100)}% · ${stateLabel(result.batteryState)} · low power ${result.lowPowerMode ? 'on' : 'off'}`,
+    );
   };
 
-  const refreshIp = async () => {
-    try {
-      const ip = await Network.getIpAddressAsync();
-      setIpAddress(ip);
-    } catch (error) {
-      setIpAddress(error instanceof Error ? error.message : 'Unavailable');
-    }
-  };
-
-  const refreshAirplaneMode = async () => {
+  const refreshOptimization = async () => {
     if (Platform.OS !== 'android') {
-      setAirplaneMode(null);
+      setStatus('Battery optimization check is Android-only.');
       return;
     }
-    const enabled = await Network.isAirplaneModeEnabledAsync();
-    setAirplaneMode(enabled);
+    const enabled = await Battery.isBatteryOptimizationEnabledAsync();
+    setOptimization(enabled);
+    setStatus(enabled ? 'Battery optimization is ON' : 'Battery optimization is OFF');
   };
 
   return (
     <ScrollView contentContainerStyle={{ padding: 24, gap: 12 }}>
-      <Text style={{ fontSize: 18, fontWeight: '600' }}>Network (live)</Text>
-      <Text>Type: {liveState.type ?? 'unknown'}</Text>
-      <Text>Connected: {String(liveState.isConnected)}</Text>
-      <Text>Internet reachable: {String(liveState.isInternetReachable)}</Text>
+      <Text style={{ fontSize: 18, fontWeight: '600' }}>Battery</Text>
+      <Text>Available: {available === null ? '…' : available ? 'Yes' : 'No'}</Text>
+      <Text>Level: {level < 0 ? 'Unavailable' : `${Math.round(level * 100)}%`}</Text>
+      <Text>State: {stateLabel(state)}</Text>
+      <Text>Low power mode: {lowPowerMode ? 'On' : 'Off'}</Text>
+      <Text>
+        Hook bundle: {Math.round(powerState.batteryLevel * 100)}% ·{' '}
+        {stateLabel(powerState.batteryState)}
+      </Text>
 
-      <Button title="Fetch one-time snapshot" onPress={refreshSnapshot} />
-      {snapshot && (
-        <Text>
-          Snapshot: {snapshot.type} · connected={String(snapshot.isConnected)}
-        </Text>
-      )}
-
-      <Button title="Get IP address" onPress={refreshIp} />
-      {ipAddress && <Text selectable>IP: {ipAddress}</Text>}
-
+      <Button title="Refresh power state" onPress={refreshPowerState} />
       {Platform.OS === 'android' && (
-        <>
-          <Button title="Check airplane mode" onPress={refreshAirplaneMode} />
-          {airplaneMode !== null && (
-            <Text>Airplane mode: {airplaneMode ? 'On' : 'Off'}</Text>
-          )}
-        </>
+        <Button title="Check battery optimization" onPress={refreshOptimization} />
       )}
+      {optimization !== null && (
+        <Text>Optimization enabled: {optimization ? 'Yes' : 'No'}</Text>
+      )}
+
+      {status && <Text>{status}</Text>}
 
       <Text style={{ fontWeight: '600', marginTop: 8 }}>Recent events</Text>
       {events.length === 0 ? (
