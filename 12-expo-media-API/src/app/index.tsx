@@ -1,52 +1,56 @@
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
-import { Image } from 'expo-image';
 import * as MediaLibrary from 'expo-media-library';
 import { useEffect, useState } from 'react';
 import {
   ActivityIndicator,
+  Alert,
   Button,
-  FlatList,
-  Pressable,
+  Image,
+  Pressable
 } from 'react-native';
 
-export default function AlbumBrowserScreen() {
+export default function AssetFileAccessScreen() {
   const [permission] = MediaLibrary.usePermissions();
-  const [albums, setAlbums] = useState<MediaLibrary.Album[]>([]);
-  const [selectedAlbum, setSelectedAlbum] = useState<MediaLibrary.Album | null>(null);
   const [assets, setAssets] = useState<MediaLibrary.Asset[]>([]);
-  const [loading, setLoading] = useState(false);
-
-  const loadAlbums = async () => {
-    const list = await MediaLibrary.getAlbumsAsync({ includeSmartAlbums: true });
-    setAlbums(list);
-  };
-
-  const loadAssets = async (album: MediaLibrary.Album | null) => {
-    setLoading(true);
-    try {
-      const page = await MediaLibrary.getAssetsAsync({
-        first: 12,
-        album: album ?? undefined,
-        mediaType: MediaLibrary.MediaType.photo,
-        sortBy: [[MediaLibrary.SortBy.creationTime, false]],
-      });
-      setAssets(page.assets);
-    } finally {
-      setLoading(false);
-    }
-  };
+  const [selected, setSelected] = useState<MediaLibrary.AssetInfo | null>(null);
+  const [loadingInfo, setLoadingInfo] = useState(false);
 
   useEffect(() => {
-    if (permission?.granted) {
-      loadAlbums();
-      loadAssets(null); // "Recent" — no album filter
-    }
+    if (!permission?.granted) return;
+
+    MediaLibrary.getAssetsAsync({
+      first: 9,
+      mediaType: MediaLibrary.MediaType.photo,
+      sortBy: [[MediaLibrary.SortBy.creationTime, false]],
+    }).then((page) => setAssets(page.assets));
   }, [permission?.granted]);
 
-  const selectAlbum = (album: MediaLibrary.Album | null) => {
-    setSelectedAlbum(album);
-    loadAssets(album);
+  const openAsset = async (asset: MediaLibrary.Asset) => {
+    setLoadingInfo(true);
+    try {
+      const info = await MediaLibrary.getAssetInfoAsync(asset, {
+        shouldDownloadFromNetwork: true, // download iCloud photos on iOS
+      });
+      setSelected(info);
+    } catch (error) {
+      Alert.alert(
+        'Could not read file',
+        error instanceof Error ? error.message : 'Unknown error',
+      );
+    } finally {
+      setLoadingInfo(false);
+    }
+  };
+
+  const useFile = () => {
+    if (!selected?.localUri) {
+      Alert.alert('No local file', 'localUri is not available yet. Try again or check iCloud download.');
+      return;
+    }
+
+    // Example: upload, share, or read with expo-file-system
+    Alert.alert('File ready', selected.localUri);
   };
 
   if (!permission?.granted) {
@@ -58,55 +62,31 @@ export default function AlbumBrowserScreen() {
   }
 
   return (
-    <ThemedView style={{ flex: 1, padding: 12, gap: 8 }}>
-      <ThemedText style={{ fontWeight: '600' }}>Albums</ThemedText>
+    <ThemedView style={{ flex: 1, padding: 12, gap: 12 }}>
+      <ThemedText style={{ fontWeight: '600' }}>Tap a photo to get its file path</ThemedText>
 
-      <FlatList
-        horizontal
-        data={[{ id: 'recent', title: 'Recent' } as MediaLibrary.Album, ...albums]}
-        keyExtractor={(item) => item.id}
-        showsHorizontalScrollIndicator={false}
-        contentContainerStyle={{ gap: 8 }}
-        renderItem={({ item }) => {
-          const isRecent = item.id === 'recent';
-          const selected = isRecent
-            ? selectedAlbum === null
-            : selectedAlbum?.id === item.id;
+      <ThemedView style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 4 }}>
+        {assets.map((asset) => (
+          <Pressable key={asset.id} onPress={() => openAsset(asset)} style={{ width: '32%' }}>
+            <Image source={{ uri: asset.uri }} style={{ aspectRatio: 1 }} />
+          </Pressable>
+        ))}
+      </ThemedView>
 
-          return (
-            <Pressable
-              onPress={() => selectAlbum(isRecent ? null : item)}
-              style={{
-                paddingHorizontal: 12,
-                paddingVertical: 8,
-                borderRadius: 16,
-                backgroundColor: selected ? '#208AEF' : '#eee',
-              }}>
-              <ThemedText style={{ color: selected ? '#fff' : '#000' }}>
-                {item.title}
-              </ThemedText>
-            </Pressable>
-          );
-        }}
-      />
+      {loadingInfo && <ActivityIndicator />}
 
-      {loading ? (
-        <ActivityIndicator />
-      ) : (
-        <FlatList
-          data={assets}
-          keyExtractor={(item) => item.id}
-          numColumns={3}
-          columnWrapperStyle={{ gap: 4 }}
-          contentContainerStyle={{ gap: 4 }}
-          renderItem={({ item }) => (
-            <Image
-              source={{ uri: item.uri }}
-              style={{ flex: 1, aspectRatio: 1 }}
-              contentFit="cover"
-            />
-          )}
-        />
+      {selected && (
+        <ThemedView style={{ gap: 8 }}>
+          <ThemedText>Filename: {selected.filename}</ThemedText>
+          <ThemedText>Size: {selected.width}×{selected.height}</ThemedText>
+          <ThemedText selectable numberOfLines={3}>
+            PreThemedView URI: {selected.uri}
+          </ThemedText>
+          <ThemedText selectable numberOfLines={3}>
+            File URI: {selected.localUri ?? 'Not downloaded yet'}
+          </ThemedText>
+          <Button title="Use file (upload / share)" onPress={useFile} />
+        </ThemedView>
       )}
     </ThemedView>
   );
