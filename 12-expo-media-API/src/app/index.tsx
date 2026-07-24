@@ -1,77 +1,27 @@
-import { StyleSheet, View, Button } from 'react-native';
-import * as Haptics from 'expo-haptics';
-import { ThemedText } from '@/components/themed-text';
+import { useEffect } from 'react';
+import { StyleSheet, View, Text } from 'react-native';
+import * as Contacts from 'expo-contacts';
 
 export default function App() {
+  useEffect(() => {
+    (async () => {
+      const { status } = await Contacts.requestPermissionsAsync();
+      if (status === 'granted') {
+        const { data } = await Contacts.getContactsAsync({
+          fields: [Contacts.Fields.Emails],
+        });
+
+        if (data.length > 0) {
+          const contact = data[0];
+          console.log(contact);
+        }
+      }
+    })();
+  }, []);
+
   return (
     <View style={styles.container}>
-      <ThemedText >Haptics.selectionAsync</ThemedText>
-      <View style={styles.buttonContainer}>
-        <Button title="Selection" onPress={() =>  Haptics.selectionAsync() } />
-      </View>
-      <ThemedText >Haptics.notificationAsync</ThemedText>
-      <View style={styles.buttonContainer}>
-        <Button
-          title="Success"
-          onPress={
-            () =>
-               Haptics.notificationAsync(
-                Haptics.NotificationFeedbackType.Success
-              ) 
-          }
-        />
-        <Button
-          title="Error"
-          onPress={
-            () =>
-               Haptics.notificationAsync(
-                Haptics.NotificationFeedbackType.Error
-              ) 
-          }
-        />
-        <Button
-          title="Warning"
-          onPress={
-            () =>
-               Haptics.notificationAsync(
-                Haptics.NotificationFeedbackType.Warning
-              ) 
-          }
-        />
-      </View>
-      <ThemedText>Haptics.impactAsync</ThemedText>
-      <View style={styles.buttonContainer}>
-        <Button
-          title="Light"
-          onPress={
-            () =>  Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light) 
-          }
-        />
-        <Button
-          title="Medium"
-          onPress={
-            () =>  Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium) 
-          }
-        />
-        <Button
-          title="Heavy"
-          onPress={
-            () =>  Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Heavy) 
-          }
-        />
-        <Button
-          title="Rigid"
-          onPress={
-            () =>  Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Rigid) 
-          }
-        />
-        <Button
-          title="Soft"
-          onPress={
-            () =>  Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Soft) 
-          }
-        />
-      </View>
+      <Text>Contacts Module Example</Text>
     </View>
   );
 }
@@ -79,14 +29,8 @@ export default function App() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    backgroundColor: '#fff',
+    alignItems: 'center',
     justifyContent: 'center',
-    paddingHorizontal: 16,
-  },
-  buttonContainer: {
-    flexDirection: 'row',
-    alignItems: 'stretch',
-    marginTop: 10,
-    marginBottom: 30,
-    justifyContent: 'space-between',
   },
 });
