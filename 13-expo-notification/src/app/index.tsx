@@ -22,13 +22,24 @@ export default function Index() {
           screen: "/profile",
           userId: 42,
         },
-        sound: false, // false means no sound, defaultRingtone & defaultCritical are IOS specific for now
+        // sound: false, // false means no sound, defaultRingtone & defaultCritical are IOS specific for now
         badge: 3, // only works on ios
         priority: Notifications.AndroidNotificationPriority.HIGH,
         sticky: true
       },
-      trigger: null,
+      trigger: {
+        type: Notifications.SchedulableTriggerInputTypes.TIME_INTERVAL,
+        seconds: 5,
+        repeats: false
+      },
     });
+  }
+
+  async function cancelNotification(){
+    await Notifications.cancelAllScheduledNotificationsAsync();
+  }
+  async function clearAllNotifications(){
+    await Notifications.dismissAllNotificationsAsync();
   }
 
   useEffect(() => {
@@ -43,6 +54,8 @@ export default function Index() {
   return (
     <View style={styles.container}>
       <Button title="Schedule Notification" onPress={example1} />
+      <Button title="Cancel Notification" onPress={cancelNotification} />
+      <Button title="Clear All" onPress={clearAllNotifications} />
     </View>
   );
 }
