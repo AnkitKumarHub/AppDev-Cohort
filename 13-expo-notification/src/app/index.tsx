@@ -1,6 +1,8 @@
-import { Text, View, StyleSheet, Button } from "react-native";
-import * as Notifications from "expo-notifications";
-import { useEffect } from "react";
+import { useState, useEffect } from 'react';
+import { Text, View, Button, Platform } from 'react-native';
+import * as Notifications from 'expo-notifications';
+import Constants from 'expo-constants';
+
 
 Notifications.setNotificationHandler({
   handleNotification: async () => ({
@@ -11,59 +13,110 @@ Notifications.setNotificationHandler({
   }),
 });
 
-export default function Index() {
-  async function example1() {
-    await Notifications.scheduleNotificationAsync({
-      content: {
-        title: "Welcome!",
-        subtitle: "From ankit",
-        body: "This is my first notification!",
-        data: {
-          screen: "/profile",
-          userId: 42,
-        },
-        // sound: false, // false means no sound, defaultRingtone & defaultCritical are IOS specific for now
-        badge: 3, // only works on ios
-        priority: Notifications.AndroidNotificationPriority.HIGH,
-        sticky: true
-      },
-      trigger: {
-        type: Notifications.SchedulableTriggerInputTypes.TIME_INTERVAL,
-        seconds: 5,
-        repeats: false
-      },
+
+
+async function sendPushNotification(expoPushToken: string) {
+  const message = {
+    to: expoPushToken,
+    sound: 'default',
+    title: 'My first push notification',
+    body: 'This is my first push notification',
+    data: { someData: 'This is some data' },
+  };
+
+  await fetch('https://exp.host/--/api/v2/push/send', {
+    method: 'POST',
+    headers: {
+      Accept: 'application/json',
+      'Accept-encoding': 'gzip, deflate',
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(message),
+  });
+}
+
+
+function handleRegistrationError(errorMessage: string) {
+  alert(errorMessage);
+  throw new Error(errorMessage);
+}
+
+async function registerForPushNotificationsAsync() {
+  if (Platform.OS === 'android') {
+    await Notifications.setNotificationChannelAsync('default', {
+      name: 'default',
+      importance: Notifications.AndroidImportance.MAX,
+      vibrationPattern: [0, 250, 250, 250],
+      lightColor: '#FF231F7C',
     });
   }
 
-  async function cancelNotification(){
-    await Notifications.cancelAllScheduledNotificationsAsync();
+  const { status: existingStatus } = await Notifications.getPermissionsAsync();
+  let finalStatus = existingStatus;
+  if (existingStatus !== 'granted') {
+    const { status } = await Notifications.requestPermissionsAsync();
+    finalStatus = status;
   }
-  async function clearAllNotifications(){
-    await Notifications.dismissAllNotificationsAsync();
+  if (finalStatus !== 'granted') {
+    handleRegistrationError('Permission not granted to get push token for push notification!');
+    return;
   }
+  const projectId = Constants?.expoConfig?.extra?.eas?.projectId ?? Constants?.easConfig?.projectId;
+  if (!projectId) {
+    handleRegistrationError('Project ID not found');
+  }
+  try {
+    const pushTokenString = (
+      await Notifications.getExpoPushTokenAsync({
+        projectId,
+      })
+    ).data;
+    console.log(pushTokenString);
+    return pushTokenString;
+  } catch (e: unknown) {
+    handleRegistrationError(`${e}`);
+  }
+}
+
+export default function App() {
+  const [expoPushToken, setExpoPushToken] = useState('');
+  const [notification, setNotification] = useState<Notifications.Notification | undefined>(
+    undefined
+  );
 
   useEffect(() => {
-    Notifications.addNotificationResponseReceivedListener((response) => {
-      const data = response.notification.request.content.data;
-      console.log(data);
-      //  when user clicks on the notification, we can navigate to the screen specified in the data
-      //  const url = response.notification.request.content.data.url;
-      // Linking.openURL(url);
+    registerForPushNotificationsAsync()
+      .then(token => setExpoPushToken(token ?? ''))
+      .catch((error: any) => setExpoPushToken(`${error}`));
+
+    const notificationListener = Notifications.addNotificationReceivedListener(notification => {
+      setNotification(notification);
     });
+
+    const responseListener = Notifications.addNotificationResponseReceivedListener(response => {
+      console.log(response);
+    });
+
+    return () => {
+      notificationListener.remove();
+      responseListener.remove();
+    };
   }, []);
+
   return (
-    <View style={styles.container}>
-      <Button title="Schedule Notification" onPress={example1} />
-      <Button title="Cancel Notification" onPress={cancelNotification} />
-      <Button title="Clear All" onPress={clearAllNotifications} />
+    <View style={{ flex: 1, alignItems: 'center', justifyContent: 'space-around' }}>
+      <Text>Your Expo push token: {expoPushToken}</Text>
+      <View style={{ alignItems: 'center', justifyContent: 'center' }}>
+        <Text>Title: {notification && notification.request.content.title} </Text>
+        <Text>Body: {notification && notification.request.content.body}</Text>
+        <Text>Data: {notification && JSON.stringify(notification.request.content.data)}</Text>
+      </View>
+      <Button
+        title="Press to Send Notification"
+        onPress={async () => {
+          await sendPushNotification(expoPushToken);
+        }}
+      />
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-});

@@ -18,7 +18,8 @@
         "monochromeImage": "./assets/images/android-icon-monochrome.png"
       },
       "predictiveBackGestureEnabled": false,
-      "package": "com.ankithub.expoNotification"
+      "package": "com.ankithub.expoNotification",
+      "googleServicesFile": "./google-services.json"
     },
     "web": {
       "output": "static",
@@ -34,15 +35,6 @@
             "image": "./assets/images/splash-icon.png",
             "imageWidth": 76
           }
-        }
-      ],
-      [
-        "expo-notifications",
-        {
-          "icon": "./assets/images/notification-icon.png",
-          "color": "#208AEF",
-          "defaultChannel": "default",
-          "sounds": ["./assets/sounds/notification.wav"]
         }
       ]
     ],
