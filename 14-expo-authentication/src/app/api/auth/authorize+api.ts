@@ -1,4 +1,4 @@
-import { BASE_URL, GITHUB_AUTH_URL, GITHUB_CLIENT_ID, GITHUB_CLIENT_SECRET, GOOGLE_AUTH_URL, GOOGLE_CLIENT_ID } from "@/constants";
+import { BASE_URL, GITHUB_AUTH_URL, GITHUB_CLIENT_ID, GOOGLE_AUTH_URL, GOOGLE_CLIENT_ID } from "@/constants";
 
 export async function GET(request: Request) {
     const url = new URL(request.url);
@@ -31,6 +31,7 @@ export async function GET(request: Request) {
 
         return Response.redirect(`${GITHUB_AUTH_URL}?${params.toString()}`)
     }
+    // console.log("GOOGLE_CLIENT_ID", GOOGLE_CLIENT_ID);
 
     if(!GOOGLE_CLIENT_ID){
         return Response.json({error: "Google client ID is not set"}, {status: 400});

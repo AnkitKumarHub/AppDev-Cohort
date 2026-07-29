@@ -28,7 +28,7 @@ export const auth = betterAuth({
         }, 
       }, 
 
-      rustedOrigins: [
+      trustedOrigins: [
         "14expoauthentication://",
         
         ...(process.env.NODE_ENV === "development" ? [

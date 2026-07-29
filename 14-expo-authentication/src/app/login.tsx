@@ -1,4 +1,4 @@
-import { BetterAuthPanel } from "@/components/better-auth-panel";
+import { BetterAuthPanel } from "@/components/better-auth-pannel";
 import { useAuth } from "@/context/auth-context";
 import { Image } from "expo-image";
 import React, { useState } from "react";
@@ -21,7 +21,7 @@ const TABS: { id: AuthTab; label: string }[] = [
 const login = () => {
   const [activeTab, setActiveTab] = useState<AuthTab>("expo");
   const [isLoading, setIsLoading] = useState(false);
-  const { user } = useAuth();
+  const { user, signIn } = useAuth();
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: "#0B1120" }}>
       <View
@@ -115,7 +115,7 @@ const login = () => {
         ) : (
           <View style={{ width: "100%", gap: 14 }}>
             <Pressable
-              onPress={() => {}}
+              onPress={() => signIn('google')}
               disabled={isLoading}
               style={({ pressed }) => ({
                 width: "100%",
@@ -153,7 +153,7 @@ const login = () => {
             </Pressable>
 
             <Pressable
-              onPress={() => {}}
+              onPress={() => signIn('github')}
               disabled={isLoading}
               style={({ pressed }) => ({
                 width: "100%",
